@@ -13,8 +13,9 @@
 #define ErrorFloat 1.0E30
 #define FREQUENCY_LEG 0.2
 
-int serial_baudrate=19200;
+int serial_baudrate=19200;//9600,19200,38400,57600,74880,115200,230400,250000
 
+//unsigned long start;
 float StringToFloat(String s);
 int PotentiometerFlag=0;
 int Normal_Force_Flag=0;
@@ -28,30 +29,34 @@ int valve_flag = 0;
 String sampleDrive="OFF";
 int PinNum=0;
 int drive_flag=0;
-String POTandFORCE_SWITCH;
-String PRESSER_SETTING;
 String DRIVE_TYPE;
 double omega;
 double sigma;
 double force[4];
-double PHASE_L1;
-double PHASE_L2;
-double PHASE_R1;
-double PHASE_R2;
-double angle_velocity_L1;
-double angle_velocity_L2;
-double angle_velocity_R1;
-double angle_velocity_R2;
+double PHASE[4]={0.0,0.0,0.0,0.0};
+double angle_velocity[4]={0.0,0.0,0.0,0.0};
 double FORCE[4];
 String SETTING_SWITCH;
 String CONST_VALUE_SWITCH;
 String CONST_VALUE_OMEGA;
 String CONST_VALUE_SIGMA;
 String LEG_NUM;
-String Pattern[4][4];
-int attitude[4][4];
+String Pattern[4][4];//配列前半：脚番号，配列後半：動作順番（位相順方向）
 int DRIVE_FLAG=0;
-
+int timinger[4]={0,0,0,0};
+double DeltaPhase[4]={0.0,0.0,0.0,0.0};
+double PrePhase[4]={0.0,0.0,0.0,0.0};
+double TIMER=0.0;
+int timerflag=0;
+int loopcounter;
+double starttimebox;
+double PHASEsaw[4]={0.0,0.0,0.0,0.0};
+double GIGA=pow(10,9);
+double MEGA=pow(10,6);
+double KILLO=pow(10,3);
+double preTime;
+double dt;
+double nowTIME;
 
 //DACに出力を行う処理の関数
 void DACout(int dataPin, int clockPin, int destination, int value){
@@ -75,22 +80,21 @@ void DACout(int dataPin, int clockPin, int destination, int value){
     else                    digitalWrite(dataPin, LOW);
     digitalWrite(clockPin, HIGH);
     digitalWrite(clockPin, LOW);
-  }
-}
-
+  }//for end
+}//DACout end
 
 
 void Pin_All_OFF(){
     for(PinNum=22;PinNum<54;PinNum++){
       digitalWrite(PinNum,LOW);
     }
-}
+}//Pin_All_OFF end
 
 
   
 void setup() {
   Serial.begin(serial_baudrate);
-
+  //start=micros();
   pinMode(DA_SCK, OUTPUT);
   pinMode(DA_SDI, OUTPUT);
   pinMode(DA_CS, OUTPUT);
@@ -105,7 +109,7 @@ void setup() {
   for(PinNum=22;PinNum<54;PinNum++){
    digitalWrite(PinNum,LOW);
   }
-}
+}//setup end
 
           
 void loop() {
@@ -117,8 +121,12 @@ void loop() {
         if(SETTING_SWITCH=="Normal_force_ON")Normal_Force_Flag=1;
         if(SETTING_SWITCH=="Normal_force_OFF")Normal_Force_Flag=0;
         if(SETTING_SWITCH=="ITV")ITV_function();         
-        if(SETTING_SWITCH=="DRIVE")DRIVE_FLAG=1; 
-        if(SETTING_SWITCH=="DRIVE_STOP")DRIVE_FLAG=0;
+        if(SETTING_SWITCH=="DRIVE"){
+          DRIVE_FLAG=1; 
+        }
+        if(SETTING_SWITCH=="DRIVE_STOP"){
+          DRIVE_FLAG=0;
+        }
         if (SETTING_SWITCH == "OMEGA_AND_FBW") {
           CONST_VALUE_SWITCH = Serial.readStringUntil(':');
           if (CONST_VALUE_SWITCH=="OMEGA") {
@@ -130,39 +138,27 @@ void loop() {
             sigma = (double)StringToFloat(CONST_VALUE_SIGMA);
           }
         }
-        if(SETTING_SWITCH=="PHASE_DRIVE"){
-          
+        
+        if(SETTING_SWITCH=="PHASE_DRIVE"){//脚の駆動ぱたーん受信
           LEG_NUM=Serial.readStringUntil(':');
           if(LEG_NUM=="L1"){
             for(int COUNT1=0;COUNT1<4;COUNT1++){
-             Pattern[1][COUNT1]=Serial.readStringUntil(':');
-             if(Pattern[1][COUNT1]=="No")attitude[1][COUNT1]=1;
-             //else if(Pattern[1][COUNT1]=="NN")attitude[1][COUNT1]=0;
-             //Serial.println("test:1"+(String)COUNT1+(String)attitude[1][COUNT1]);
+             Pattern[0][COUNT1]=Serial.readStringUntil(':');
             }
           }
           else if(LEG_NUM=="L2"){
             for(int COUNT2=0;COUNT2<4;COUNT2++){
-             Pattern[2][COUNT2]=Serial.readStringUntil(':');
-             if(Pattern[2][COUNT2]=="No")attitude[2][COUNT2]=1;
-             //else if(Pattern[2][COUNT2]=="NN")attitude[2][COUNT2]=0;
-             //Serial.println("test:2"+(String)COUNT2+(String)attitude[2][COUNT2]);
+             Pattern[1][COUNT2]=Serial.readStringUntil(':');
             }
           }
           else if(LEG_NUM=="R1"){
             for(int COUNT3=0;COUNT3<4;COUNT3++){
-             Pattern[3][COUNT3]=Serial.readStringUntil(':');
-             if(Pattern[3][COUNT3]=="No")attitude[3][COUNT3]=1;
-             //else if(Pattern[3][COUNT3]=="NN")attitude[3][COUNT3]=0;
-             //Serial.println("test:3"+(String)COUNT3+(String)attitude[3][COUNT3]);
+             Pattern[2][COUNT3]=Serial.readStringUntil(':');
             }
           }
           else if(LEG_NUM=="R2"){
             for(int COUNT4=0;COUNT4<4;COUNT4++){
-             Pattern[4][COUNT4]=Serial.readStringUntil(':');
-             if(Pattern[4][COUNT4]=="No")attitude[4][COUNT4]=1;
-             //else if(Pattern[4][COUNT4]=="NN")attitude[4][COUNT4]=0;
-             //Serial.println("test:4"+(String)COUNT4+(String)attitude[4][COUNT4]);
+             Pattern[3][COUNT4]=Serial.readStringUntil(':');
             }
           }
         }
@@ -174,13 +170,24 @@ void loop() {
       Output_Function_PHASE_angle_velocity();
       Output_Function_Angle();
       Output_function_NormalForce();
+      dt=(micros()-preTime)/MEGA;
+      preTime=micros();
+      TIMER+=dt;
+      if(loopcounter==0){starttimebox=TIMER;loopcounter+=1;}
+      else if(loopcounter>0){loopcounter+=1;}
+      else {loopcounter=0;}
+      nowTIME=TIMER-starttimebox;
+      
     }
-    
-    
-    
-}//loop関数終わり
+    else if(DRIVE_FLAG==0){
+      for(int c=0;c<4;c++){
+        PHASE[c]=0.0;
+      }
+      TIMER=0.0;
+    }
 
 
+}//loop end
 
 //Degrees to Radians
 double To_Radians(double Degrees){
@@ -190,74 +197,6 @@ double To_Radians(double Degrees){
 double To_Degrees(double Radians){
   return Radians*(180/PI_VAL);
 }
-
-//位相を受信してスイッチを切り替える
-void LegphaseInput(char legnum,double leg_switch){
-  int LegNumberOfPoint;
-  if(legnum=="L1"){
-    LegNumberOfPoint=1;
-        if(leg_switch==0){//NN
-          digitalWrite((22+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((23+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((24+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((25+4*LegNumberOfPoint-4),LOW);  
-        }
-        else if(leg_switch==1){//FF
-          digitalWrite((22+4*LegNumberOfPoint-4),HIGH);
-          digitalWrite((23+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((24+4*LegNumberOfPoint-4),HIGH);
-          digitalWrite((25+4*LegNumberOfPoint-4),LOW);  
-        }
-  }
-  else if(legnum=="L2"){
-    LegNumberOfPoint=2;
-        if(leg_switch==0){//NN
-          digitalWrite((22+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((23+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((24+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((25+4*LegNumberOfPoint-4),LOW);  
-        }
-        else if(leg_switch==1){//RR
-          digitalWrite((22+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((23+4*LegNumberOfPoint-4),HIGH);
-          digitalWrite((24+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((25+4*LegNumberOfPoint-4),HIGH);  
-        }
-  }
-  else if(legnum=="R1"){
-    LegNumberOfPoint=3;
-        if(leg_switch==0){//NN
-          digitalWrite((22+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((23+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((24+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((25+4*LegNumberOfPoint-4),LOW);  
-        }
-        else if(leg_switch==1){//FF
-          digitalWrite((22+4*LegNumberOfPoint-4),HIGH);
-          digitalWrite((23+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((24+4*LegNumberOfPoint-4),HIGH);
-          digitalWrite((25+4*LegNumberOfPoint-4),LOW);  
-        }
-  }
-  else if(legnum=="R2"){
-    LegNumberOfPoint=4;
-        if(leg_switch==0){//NN
-          digitalWrite((22+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((23+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((24+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((25+4*LegNumberOfPoint-4),LOW);  
-        }
-        else if(leg_switch==1){//RR
-          digitalWrite((22+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((23+4*LegNumberOfPoint-4),HIGH);
-          digitalWrite((24+4*LegNumberOfPoint-4),LOW);
-          digitalWrite((25+4*LegNumberOfPoint-4),HIGH);    
-        }
-  }
-}
-
-
-
 
 
 //コンボボックス値と脚番号によってスイッチを切り替える
@@ -296,7 +235,7 @@ void LegPointInput(int ComboBoxNumber,int LegNumberOfPoint,char JointPoint1,char
                 default:
                     break;
             }
-  }
+}//LegPointImput end 
 
 //電磁弁の関数
 void GFGA_function(){
@@ -314,8 +253,6 @@ void GFGA_function(){
     }
   }
 }
-
-
 
 //電空レギュレータの関数
 void ITV_function(){
@@ -352,9 +289,6 @@ double LOW_PASS_FILTER(double now_signal,double last_signal,double constant1,dou
        return LPF += variable * (now_signal - LPF);
    }
 
-
-
-
 //String型をFloat型に変換する関数
 float StringToFloat(String s)
 {
@@ -371,98 +305,73 @@ float StringToFloat(String s)
 } // StringToFloat
 
 
-
-
 //位相の角速度と位相を出力する関数
 void Output_Function_PHASE_angle_velocity(){
 
-  double preTime;
-  double dt=(micros()-preTime)/1000000;
-  double saw_L1;
-  double saw_L2;
-  double saw_R1;
-  double saw_R2;
-  int attitude_L1;
-  int attitude_L2;
-  int attitude_R1;
-  int attitude_R2;
+  //unsigned long preTime;
+  //unsigned long dt;
+  double saw[4];
+  static int ComboBoxValue[4]={0,1,2,3};
+  //unsigned long nowTIME;
 
-  angle_velocity_L1=omega-sigma*FORCE[0]*cos(PHASE_L1);
-  angle_velocity_L2=omega-sigma*FORCE[1]*cos(PHASE_L2);
-  angle_velocity_R1=omega-sigma*FORCE[2]*cos(PHASE_R1);
-  angle_velocity_R2=omega-sigma*FORCE[3]*cos(PHASE_R2);
-
-  saw_L1+=angle_velocity_L1*dt;
-  saw_L2+=angle_velocity_L2*dt;
-  saw_R1+=angle_velocity_R1*dt;
-  saw_R2+=angle_velocity_R2*dt;
-
-  PHASE_L1=fmod(saw_L1,2*PI_VAL);
-  PHASE_L2=fmod(saw_L2,2*PI_VAL);
-  PHASE_R1=fmod(saw_R1,2*PI_VAL);
-  PHASE_R2=fmod(saw_R2,2*PI_VAL);
-
-  if(0<=PHASE_L1&&PHASE_L1<180)attitude_L1=1;
-  else if(180<=PHASE_L1&&PHASE_L1<360)attitude_L1=0;
-  if(0<=PHASE_L2&&PHASE_L2<180)attitude_L2=1;
-  else if(180<=PHASE_L2&&PHASE_L2<360)attitude_L2=0;
-  if(0<=PHASE_R1&&PHASE_R1<180)attitude_R1=1;
-  else if(180<=PHASE_R1&&PHASE_R1<360)attitude_R1=0;
-  if(0<=PHASE_R2&&PHASE_R2<180)attitude_R2=1;
-  else if(180<=PHASE_R2&&PHASE_R2<360)attitude_R2=0;
   
+  //静的変数の初期化処理
+  if(DRIVE_FLAG==0){
+    for(int c=0;c<4;c++){
+      PHASE[c]=0.0;
+      ComboBoxValue[c]=0;
+    }
+  }
   
-  Serial.println("AV_L1:"+String(angle_velocity_L1));
-  Serial.println("AV_L2:"+String(angle_velocity_L2));
-  Serial.println("AV_R1:"+String(angle_velocity_R1));
-  Serial.println("AV_R2:"+String(angle_velocity_R2));
-  Serial.println("PHASE_L1:"+String(PHASE_L1));
-  Serial.println("PHASE_L2:"+String(PHASE_L2));
-  Serial.println("PHASE_R1:"+String(PHASE_R1));
-  Serial.println("PHASE_R2:"+String(PHASE_R2));
-  Serial.println("ATTITUDE_L1:"+String(attitude_L1));
-  Serial.println("ATTITUDE_L2:"+String(attitude_L2));
-  Serial.println("ATTITUDE_R1:"+String(attitude_R1));
-  Serial.println("ATTITUDE_R2:"+String(attitude_R2));
+    for(int count=0;count<4;count++){
+      angle_velocity[count]=omega-sigma*FORCE[count]*cos(PHASE[count]);
+      saw[count]+=angle_velocity[count]*dt;
+      PHASE[count]=fmod(saw[count],2*PI_VAL);
+      PHASEsaw[count]=fmod(PHASE[count],PI_VAL);
+      DeltaPhase[count]=PHASEsaw[count]-PrePhase[count];
+      if(DeltaPhase[count]<0)timinger[count]=1;
+      else if(DeltaPhase[count]>0)timinger[count]=0;
+      PrePhase[count]=PHASEsaw[count];
+  
+      if(Pattern[count][ComboBoxValue[count]] != "No"){
+        //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+        LegPointInput(ComboBoxValue[count],1,Pattern[count][ComboBoxValue[count]].charAt(0),Pattern[count][ComboBoxValue[count]].charAt(1));
+        if(timinger[count]==1){
+            ComboBoxValue[count] = ComboBoxValue[count] + 1;
+            if( ComboBoxValue[count] == 4 ) ComboBoxValue[count] = 0;
+        }
+      }  
+      else {
+        //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+        ComboBoxValue[count] = ComboBoxValue[count] + 1;
+        if( ComboBoxValue[count] == 10 ) ComboBoxValue[count] = 0;
+      }
+    }
+    
+  /*
+  if(DRIVE_FLAG==1&&loopcounter==0){starttimebox=TIMER;loopcounter++;}
+  else if(DRIVE_FLAG==1&&loopcounter>0){loopcounter++;}
+  else {loopcounter=0;}
+  nowTIME=TIMER-starttimebox;
+  */
+  Serial.println("TIMER:"+String(nowTIME));
+  Serial.println("AV_L1:"+String(angle_velocity[0]));
+  Serial.println("AV_L2:"+String(angle_velocity[1]));
+  Serial.println("AV_R1:"+String(angle_velocity[2]));
+  Serial.println("AV_R2:"+String(angle_velocity[3]));
+  Serial.println("PHASE_L1:"+String(PHASE[0]));
+  Serial.println("PHASE_L2:"+String(PHASE[1]));
+  Serial.println("PHASE_R1:"+String(PHASE[2]));
+  Serial.println("PHASE_R2:"+String(PHASE[3]));
+  Serial.println("ATTITUDE_L1:"+Pattern[0][ComboBoxValue[0]]);
+  Serial.println("ATTITUDE_L2:"+Pattern[1][ComboBoxValue[1]]);
+  Serial.println("ATTITUDE_R1:"+Pattern[2][ComboBoxValue[2]]);
+  Serial.println("ATTITUDE_R2:"+Pattern[3][ComboBoxValue[3]]);
+  Serial.println("dt:"+String(dt));
 }
 
 
-
-
-
-//ポテンショメータ生データを出力する関数
-void Output_Function_Analogdata(){
-  
-  String Analog_data_L11;
-  String Analog_data_L12;
-  String Analog_data_L21;
-  String Analog_data_L22;
-  String Analog_data_R11;
-  String Analog_data_R12;
-  String Analog_data_R21;
-  String Analog_data_R22;
-
-  //ポテンショメータからのデータ受信，型をStringにキャスティング
-  Analog_data_L11=String(analogRead(A0));
-  Analog_data_L12=String(analogRead(A1));
-  Analog_data_L21=String(analogRead(A2));
-  Analog_data_L22=String(analogRead(A3));
-  Analog_data_R11=String(analogRead(A4));
-  Analog_data_R12=String(analogRead(A5));
-  Analog_data_R21=String(analogRead(A6));
-  Analog_data_R22=String(analogRead(A7));
-
-  //PCへのデータ送信（生データ）
-  Serial.println("Potentiometer_L11:"+Analog_data_L11);
-  Serial.println("Potentiometer_L12:"+Analog_data_L12);
-  Serial.println("Potentiometer_L21:"+Analog_data_L21);
-  Serial.println("Potentiometer_L22:"+Analog_data_L22);
-  Serial.println("Potentiometer_R11:"+Analog_data_R11);
-  Serial.println("Potentiometer_R12:"+Analog_data_R12);
-  Serial.println("Potentiometer_R21:"+Analog_data_R21);
-  Serial.println("Potentiometer_R22:"+Analog_data_R22);
-  
-}
+  double Angle[4][2]={0.0};
 
 //角度を出力する関数
 void Output_Function_Angle(){
@@ -486,8 +395,6 @@ void Output_Function_Angle(){
   Analog_data_R21=String(analogRead(A6));
   Analog_data_R22=String(analogRead(A7));
 
-  //関節角度を格納する行列
-  double Angle[4][2]={0.0};
 
   Angle[0][0]=180-90*(StringToFloat(Analog_data_L11)-543)/(194-543);
   Angle[0][1]=180-90*(StringToFloat(Analog_data_L12)-553)/(194-553);
@@ -508,8 +415,13 @@ void Output_Function_Angle(){
   Serial.println("Potentiometer_R21:"+String(Angle[3][0]));
   Serial.println("Potentiometer_R22:"+String(Angle[3][1]));
   Serial.flush();
-  
+
 }
+
+String Force_Info_L1;
+String Force_Info_L2;
+String Force_Info_R1;
+String Force_Info_R2;
 
 void Output_function_NormalForce(){
 
@@ -533,17 +445,13 @@ void Output_function_NormalForce(){
     //fg[i] = 880.79/Rf[i] + 47.96;
     filtered_fg[i]=LOW_PASS_FILTER(fg[i],last_fg[i],0.1,0.01,0.03);
     last_fg[i]=fg[i];
-    FORCE[i]=force[1];
+    FORCE[i]=filtered_fg[i];
   }
 
-  String Force_Info_L1=String(FORCE[0]);
-  String Force_Info_L2=String(FORCE[1]);
-  String Force_Info_R1=String(FORCE[2]);
-  String Force_Info_R2=String(FORCE[3]);
-
-
-  //String Force_Info_L1_non=String(fg[0]);
-  //Serial.print("L1_Normal_Force_non:"+Force_Info_L1_non);
+  Force_Info_L1=String(FORCE[0]);
+  Force_Info_L2=String(FORCE[1]);
+  Force_Info_R1=String(FORCE[2]);
+  Force_Info_R2=String(FORCE[3]);
   
   Serial.println("L1_Normal_Force:"+Force_Info_L1);
   Serial.println("L2_Normal_Force:"+Force_Info_L2);
@@ -552,3 +460,237 @@ void Output_function_NormalForce(){
   Serial.flush();
   
 }
+
+
+  /*
+  //シングルスレッド（絶対消すな！）
+  /////////////
+  //パターン１//
+  /////////////
+  dt=(micros()-preTime)/MEGA;
+  preTime=micros();
+  TIMER=TIMER+dt;
+  angle_velocity[0]=omega-sigma*FORCE[0]*cos(PHASE[0]);
+  angle_velocity[1]=omega-sigma*FORCE[1]*cos(PHASE[1]);
+  angle_velocity[2]=omega-sigma*FORCE[2]*cos(PHASE[2]);
+  angle_velocity[3]=omega-sigma*FORCE[3]*cos(PHASE[3]);
+
+  saw[0]+=angle_velocity[0]*dt;
+  saw[1]+=angle_velocity[1]*dt;
+  saw[2]+=angle_velocity[2]*dt;
+  saw[3]+=angle_velocity[3]*dt;
+
+  PHASE[0]=fmod(saw[0],2*PI_VAL);
+  PHASE[1]=fmod(saw[1],2*PI_VAL);
+  PHASE[2]=fmod(saw[2],2*PI_VAL);
+  PHASE[3]=fmod(saw[3],2*PI_VAL);
+
+  PHASEsaw[0]=fmod(PHASE[0],PI_VAL);
+  PHASEsaw[1]=fmod(PHASE[1],PI_VAL);
+  PHASEsaw[2]=fmod(PHASE[2],PI_VAL);
+  PHASEsaw[3]=fmod(PHASE[3],PI_VAL);
+
+
+  DeltaPhase[0]=PHASEsaw[0]-PrePhase[0];
+  DeltaPhase[1]=PHASEsaw[1]-PrePhase[1];
+  DeltaPhase[2]=PHASEsaw[2]-PrePhase[2];
+  DeltaPhase[3]=PHASEsaw[3]-PrePhase[3];
+  
+  if(DeltaPhase[0]<0)timinger[0]=1;
+  else if(DeltaPhase[0]>0)timinger[0]=0;
+  if(DeltaPhase[1]<0)timinger[1]=1;
+  else if(DeltaPhase[1]>0)timinger[1]=0;
+  if(DeltaPhase[2]<0)timinger[2]=1;
+  else if(DeltaPhase[2]>0)timinger[2]=0;
+  if(DeltaPhase[3]<0)timinger[3]=1;
+  else if(DeltaPhase[3]>0)timinger[3]=0;
+  
+  PrePhase[0]=PHASEsaw[0];
+  PrePhase[1]=PHASEsaw[1];
+  PrePhase[2]=PHASEsaw[2];
+  PrePhase[3]=PHASEsaw[3];
+  
+
+  //////////////////Leg1の処理//////////////////
+    
+  if(Pattern[0][ComboBoxValue[0]] != "No"){
+      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+      LegPointInput(ComboBoxValue[0],1,Pattern[0][ComboBoxValue[0]].charAt(0),Pattern[0][ComboBoxValue[0]].charAt(1));
+      if(timinger[0]==1){
+          ComboBoxValue[0] = ComboBoxValue[0] + 1;
+          if( ComboBoxValue[0] == 4 ) ComboBoxValue[0] = 0;
+      }
+   }  
+   else {
+      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+      ComboBoxValue[0] = ComboBoxValue[0] + 1;
+      if( ComboBoxValue[0] == 4 ) ComboBoxValue[0] = 0;
+   }
+   /////////////////////////////////////////////////
+
+   ////////////////////Leg2の処理//////////////////
+    
+   if(Pattern[1][ComboBoxValue[1]] != "No"){
+      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+      LegPointInput(ComboBoxValue[1],2,Pattern[1][ComboBoxValue[1]].charAt(0),Pattern[1][ComboBoxValue[1]].charAt(1));
+      if(timinger[1]==1){
+               ComboBoxValue[1] = ComboBoxValue[1] + 1;
+               if( ComboBoxValue[1] == 4 ) ComboBoxValue[1] = 0;
+      }
+   }  
+   else {
+      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+      ComboBoxValue[1] = ComboBoxValue[1] + 1;
+      if( ComboBoxValue[1] == 4 ) ComboBoxValue[1] = 0;
+   }
+   ///////////////////////////////////////////////////
+        
+   ////////////////////Leg3の処理//////////////////
+    
+       if(Pattern[2][ComboBoxValue[2]] != "No"){
+           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+           LegPointInput(ComboBoxValue[2],3,Pattern[2][ComboBoxValue[2]].charAt(0),Pattern[2][ComboBoxValue[2]].charAt(1));
+           if(timinger[2]==1){
+               ComboBoxValue[2] = ComboBoxValue[2] + 1;
+               if( ComboBoxValue[2] == 4 ) ComboBoxValue[2] = 0;
+           }
+        }  
+        else {
+       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+           ComboBoxValue[2] = ComboBoxValue[2] + 1;
+           if( ComboBoxValue[2] == 4 ) ComboBoxValue[2] = 0;
+        }
+   ///////////////////////////////////////////////////
+
+   ////////////////////Leg4の処理//////////////////
+    
+       if(Pattern[3][ComboBoxValue[3]] != "No"){
+           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+           LegPointInput(ComboBoxValue[3],4,Pattern[3][ComboBoxValue[3]].charAt(0),Pattern[3][ComboBoxValue[3]].charAt(1));
+           if(timinger[3]==1){
+               ComboBoxValue[3] = ComboBoxValue[3] + 1;
+               if( ComboBoxValue[3] == 4 ) ComboBoxValue[3] = 0;
+           }
+        }  
+        else {
+       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+           ComboBoxValue[3] = ComboBoxValue[3] + 1;
+           if( ComboBoxValue[3] == 4 ) ComboBoxValue[3] = 0;
+        }
+   ///////////////////////////////////////////////////
+
+////////////
+//パターン2//
+////////////
+
+angle_velocity_L1=omega-sigma* FORCE_L1* cos(PHASE_L1);
+angle_velocity_L2=omega-sigma* FORCE_L2* cos(PHASE_L2);
+angle_velocity_R1=omega-sigma* FORCE_R1* cos(PHASE_R1);
+angle_velocity_R2=omega-sigma* FORCE_R2* cos(PHASE_R2);
+
+saw_L1+=angle_velocity_L1* dt;
+saw_L2+=angle_velocity_L2* dt;
+saw_R1+=angle_velocity_R1* dt;
+saw_R2+=angle_velocity_R2* dt;
+
+PHASE_L1=fmod(saw_L1,2*PI_VAL);
+PHASE_L2=fmod(saw_L2,2*PI_VAL);
+PHASE_R1=fmod(saw_R1,2*PI_VAL);
+PHASE_R2=fmod(saw_R2,2*PI_VAL);
+
+PHASEsaw_L1=fmod(PHASE_L1, PI_VAL);
+PHASEsaw_L2=fmod(PHASE_L2, PI_VAL);
+PHASEsaw_R1=fmod(PHASE_R1, PI_VAL);
+PHASEsaw_R2=fmod(PHASE_R2, PI_VAL);
+
+
+DeltaPhase_L1=PHASEsaw_L1-PrePhase_L1;
+  DeltaPhase_L2=PHASEsaw_L2-PrePhase_L2;
+  DeltaPhase_R1=PHASEsaw_R1-PrePhase_R1;
+  DeltaPhase_R2=PHASEsaw_R2-PrePhase_R2;
+  
+  if(DeltaPhase_L1<0)timinger_L1=1;
+  else if(DeltaPhase_L1>0)timinger_L1=0;
+  if(DeltaPhase_L2<0)timinger_L2=1;
+  else if(DeltaPhase_L2>0)timinger_L2=0;
+  if(DeltaPhase_R1<0)timinger_R1=1;
+  else if(DeltaPhase_R1>0)timinger_R1=0;
+  if(DeltaPhase_R2<0)timinger_R2=1;
+  else if(DeltaPhase_R2>0)timinger_R2=0;
+  
+  PrePhase_L1=PHASEsaw_L1;
+  PrePhase_L2=PHASEsaw_L2;
+  PrePhase_R1=PHASEsaw_R1;
+  PrePhase_R2=PHASEsaw_R2;
+  
+
+  //////////////////Leg1の処理//////////////////
+    
+  if(Pattern_L1[ComboBoxValue_L1] != "No"){
+      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+      LegPointInput(ComboBoxValue_L1,1, Pattern_L1[ComboBoxValue_L1].charAt(0),Pattern_L1[ComboBoxValue_L1].charAt(1));
+      if(timinger_L1==1){
+          ComboBoxValue_L1 = ComboBoxValue_L1 + 1;
+          if(ComboBoxValue_L1 == 4 ) ComboBoxValue_L1 = 0;
+      }
+   }  
+   else {
+      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+      ComboBoxValue_L1 = ComboBoxValue_L1 + 1;
+      if(ComboBoxValue_L1 == 4 ) ComboBoxValue_L1 = 0;
+   }
+   /////////////////////////////////////////////////
+
+   ////////////////////Leg2の処理//////////////////
+    
+   if(Pattern_L2[ComboBoxValue_L2] != "No"){
+      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+      LegPointInput(ComboBoxValue_L2,2, Pattern_L2[ComboBoxValue_L2].charAt(0),Pattern_L2[ComboBoxValue_L2].charAt(1));
+      if(timinger_L2==1){
+               ComboBoxValue_L2 = ComboBoxValue_L2 + 1;
+               if(ComboBoxValue_L2 == 4 ) ComboBoxValue_L2 = 0;
+      }
+   }  
+   else {
+      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+      ComboBoxValue_L2 = ComboBoxValue_L2 + 1;
+      if(ComboBoxValue_L2 == 4 ) ComboBoxValue_L2 = 0;
+   }
+   ///////////////////////////////////////////////////
+        
+   ////////////////////Leg3の処理//////////////////
+    
+       if(Pattern_R1[ComboBoxValue_R1] != "No"){
+           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+           LegPointInput(ComboBoxValue_R1,3, Pattern_R1[ComboBoxValue_R1].charAt(0),Pattern_R1[ComboBoxValue_R1].charAt(1));
+           if(timinger_R1==1){
+               ComboBoxValue_R1 = ComboBoxValue_R1 + 1;
+               if(ComboBoxValue_R1 == 4 ) ComboBoxValue_R1 = 0;
+           }
+        }  
+        else {
+       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+           ComboBoxValue_R1 = ComboBoxValue_R1 + 1;
+           if(ComboBoxValue_R1 == 4 ) ComboBoxValue_R1 = 0;
+        }
+   ///////////////////////////////////////////////////
+
+   ////////////////////Leg4の処理//////////////////
+    
+       if(Pattern_R2[ComboBoxValue_R2] != "No"){
+           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+           LegPointInput(ComboBoxValue_R2,4, Pattern_R2[ComboBoxValue_R2].charAt(0),Pattern_R2[ComboBoxValue_R2].charAt(1));
+           if(timinger_R2==1){
+               ComboBoxValue_R2 = ComboBoxValue_R2 + 1;
+               if(ComboBoxValue_R2 == 4 ) ComboBoxValue_R2 = 0;
+           }
+        }  
+        else {
+       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+           ComboBoxValue_R2 = ComboBoxValue_R2 + 1;
+           if(ComboBoxValue_R2 == 4 ) ComboBoxValue_R2 = 0;
+        }
+   ///////////////////////////////////////////////////
+
+//シングルスレッド終わり
+  */

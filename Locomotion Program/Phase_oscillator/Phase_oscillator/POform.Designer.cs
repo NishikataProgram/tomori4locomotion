@@ -29,18 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea17 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend17 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series17 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea18 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend18 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series18 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea19 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend19 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series19 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea20 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend20 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series20 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.GetPort = new System.Windows.Forms.Button();
             this.PortNumberBox = new System.Windows.Forms.ComboBox();
@@ -74,14 +69,9 @@
             this.R1_Normal_Force_label = new System.Windows.Forms.Label();
             this.R2_Normal_Force_label = new System.Windows.Forms.Label();
             this.Force_sensor_button = new System.Windows.Forms.Button();
-            this.L1phase_chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.R1phase_chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.L2phase_chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.R2phase_chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.START_button = new System.Windows.Forms.Button();
             this.oscillator_timer = new System.Windows.Forms.Timer(this.components);
             this.oscillate_timer_label = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.state_label = new System.Windows.Forms.Label();
@@ -106,19 +96,26 @@
             this.label12 = new System.Windows.Forms.Label();
             this.omega_FBweight_upload_button = new System.Windows.Forms.Button();
             this.OMEGA_FBW_label = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.Arduino_TIMER = new System.Windows.Forms.Label();
+            this.ATTITUDE_L1_label = new System.Windows.Forms.Label();
+            this.ATTITUDE_R1_label = new System.Windows.Forms.Label();
+            this.ATTITUDE_L2_label = new System.Windows.Forms.Label();
+            this.ATTITUDE_R2_label = new System.Windows.Forms.Label();
+            this.phase_chart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.MINPressureUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.MAXPressureUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.L1phase_chart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.R1phase_chart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.L2phase_chart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.R2phase_chart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.omega_numericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.FB_weight_numericUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.phase_chart)).BeginInit();
             this.SuspendLayout();
             // 
             // serialPort1
             // 
             this.serialPort1.BaudRate = 19200;
+            this.serialPort1.ReadBufferSize = 16384;
+            this.serialPort1.WriteBufferSize = 4096;
             this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serial_Port_DataReceived);
             // 
             // GetPort
@@ -153,7 +150,7 @@
             // PotentiometerL11
             // 
             this.PotentiometerL11.AutoSize = true;
-            this.PotentiometerL11.Location = new System.Drawing.Point(54, 651);
+            this.PotentiometerL11.Location = new System.Drawing.Point(34, 737);
             this.PotentiometerL11.Name = "PotentiometerL11";
             this.PotentiometerL11.Size = new System.Drawing.Size(23, 12);
             this.PotentiometerL11.TabIndex = 3;
@@ -162,7 +159,7 @@
             // PotentiometerL12
             // 
             this.PotentiometerL12.AutoSize = true;
-            this.PotentiometerL12.Location = new System.Drawing.Point(121, 651);
+            this.PotentiometerL12.Location = new System.Drawing.Point(34, 756);
             this.PotentiometerL12.Name = "PotentiometerL12";
             this.PotentiometerL12.Size = new System.Drawing.Size(23, 12);
             this.PotentiometerL12.TabIndex = 4;
@@ -171,7 +168,7 @@
             // PotentiometerL21
             // 
             this.PotentiometerL21.AutoSize = true;
-            this.PotentiometerL21.Location = new System.Drawing.Point(121, 728);
+            this.PotentiometerL21.Location = new System.Drawing.Point(103, 737);
             this.PotentiometerL21.Name = "PotentiometerL21";
             this.PotentiometerL21.Size = new System.Drawing.Size(23, 12);
             this.PotentiometerL21.TabIndex = 5;
@@ -180,7 +177,7 @@
             // PotentiometerL22
             // 
             this.PotentiometerL22.AutoSize = true;
-            this.PotentiometerL22.Location = new System.Drawing.Point(54, 728);
+            this.PotentiometerL22.Location = new System.Drawing.Point(103, 756);
             this.PotentiometerL22.Name = "PotentiometerL22";
             this.PotentiometerL22.Size = new System.Drawing.Size(23, 12);
             this.PotentiometerL22.TabIndex = 6;
@@ -189,7 +186,7 @@
             // PotentiometerR11
             // 
             this.PotentiometerR11.AutoSize = true;
-            this.PotentiometerR11.Location = new System.Drawing.Point(202, 651);
+            this.PotentiometerR11.Location = new System.Drawing.Point(179, 737);
             this.PotentiometerR11.Name = "PotentiometerR11";
             this.PotentiometerR11.Size = new System.Drawing.Size(25, 12);
             this.PotentiometerR11.TabIndex = 7;
@@ -198,7 +195,7 @@
             // PotentiometerR12
             // 
             this.PotentiometerR12.AutoSize = true;
-            this.PotentiometerR12.Location = new System.Drawing.Point(268, 651);
+            this.PotentiometerR12.Location = new System.Drawing.Point(179, 756);
             this.PotentiometerR12.Name = "PotentiometerR12";
             this.PotentiometerR12.Size = new System.Drawing.Size(25, 12);
             this.PotentiometerR12.TabIndex = 8;
@@ -207,7 +204,7 @@
             // PotentiometerR21
             // 
             this.PotentiometerR21.AutoSize = true;
-            this.PotentiometerR21.Location = new System.Drawing.Point(201, 728);
+            this.PotentiometerR21.Location = new System.Drawing.Point(260, 737);
             this.PotentiometerR21.Name = "PotentiometerR21";
             this.PotentiometerR21.Size = new System.Drawing.Size(25, 12);
             this.PotentiometerR21.TabIndex = 9;
@@ -216,7 +213,7 @@
             // PotentiometerR22
             // 
             this.PotentiometerR22.AutoSize = true;
-            this.PotentiometerR22.Location = new System.Drawing.Point(268, 728);
+            this.PotentiometerR22.Location = new System.Drawing.Point(260, 756);
             this.PotentiometerR22.Name = "PotentiometerR22";
             this.PotentiometerR22.Size = new System.Drawing.Size(25, 12);
             this.PotentiometerR22.TabIndex = 10;
@@ -334,7 +331,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 593);
+            this.label4.Location = new System.Drawing.Point(16, 575);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(83, 12);
             this.label4.TabIndex = 23;
@@ -342,7 +339,7 @@
             // 
             // upload_Button
             // 
-            this.upload_Button.Location = new System.Drawing.Point(70, 257);
+            this.upload_Button.Location = new System.Drawing.Point(36, 257);
             this.upload_Button.Name = "upload_Button";
             this.upload_Button.Size = new System.Drawing.Size(75, 23);
             this.upload_Button.TabIndex = 25;
@@ -393,7 +390,7 @@
             // DebugLabel2
             // 
             this.DebugLabel2.AutoSize = true;
-            this.DebugLabel2.Location = new System.Drawing.Point(162, 262);
+            this.DebugLabel2.Location = new System.Drawing.Point(117, 262);
             this.DebugLabel2.Name = "DebugLabel2";
             this.DebugLabel2.Size = new System.Drawing.Size(106, 12);
             this.DebugLabel2.TabIndex = 35;
@@ -411,7 +408,7 @@
             // L1_Normal_Force_label
             // 
             this.L1_Normal_Force_label.AutoSize = true;
-            this.L1_Normal_Force_label.Location = new System.Drawing.Point(103, 627);
+            this.L1_Normal_Force_label.Location = new System.Drawing.Point(30, 627);
             this.L1_Normal_Force_label.Name = "L1_Normal_Force_label";
             this.L1_Normal_Force_label.Size = new System.Drawing.Size(17, 12);
             this.L1_Normal_Force_label.TabIndex = 38;
@@ -420,7 +417,7 @@
             // L2_Normal_Force_label
             // 
             this.L2_Normal_Force_label.AutoSize = true;
-            this.L2_Normal_Force_label.Location = new System.Drawing.Point(103, 696);
+            this.L2_Normal_Force_label.Location = new System.Drawing.Point(30, 701);
             this.L2_Normal_Force_label.Name = "L2_Normal_Force_label";
             this.L2_Normal_Force_label.Size = new System.Drawing.Size(17, 12);
             this.L2_Normal_Force_label.TabIndex = 39;
@@ -429,7 +426,7 @@
             // R1_Normal_Force_label
             // 
             this.R1_Normal_Force_label.AutoSize = true;
-            this.R1_Normal_Force_label.Location = new System.Drawing.Point(249, 627);
+            this.R1_Normal_Force_label.Location = new System.Drawing.Point(166, 627);
             this.R1_Normal_Force_label.Name = "R1_Normal_Force_label";
             this.R1_Normal_Force_label.Size = new System.Drawing.Size(19, 12);
             this.R1_Normal_Force_label.TabIndex = 40;
@@ -438,7 +435,7 @@
             // R2_Normal_Force_label
             // 
             this.R2_Normal_Force_label.AutoSize = true;
-            this.R2_Normal_Force_label.Location = new System.Drawing.Point(249, 696);
+            this.R2_Normal_Force_label.Location = new System.Drawing.Point(166, 701);
             this.R2_Normal_Force_label.Name = "R2_Normal_Force_label";
             this.R2_Normal_Force_label.Size = new System.Drawing.Size(19, 12);
             this.R2_Normal_Force_label.TabIndex = 41;
@@ -453,74 +450,6 @@
             this.Force_sensor_button.Text = "圧力センサ ON";
             this.Force_sensor_button.UseVisualStyleBackColor = true;
             this.Force_sensor_button.Click += new System.EventHandler(this.Force_sensor_button_click);
-            // 
-            // L1phase_chart
-            // 
-            chartArea17.Name = "ChartArea1";
-            this.L1phase_chart.ChartAreas.Add(chartArea17);
-            legend17.Name = "Legend1";
-            this.L1phase_chart.Legends.Add(legend17);
-            this.L1phase_chart.Location = new System.Drawing.Point(379, 43);
-            this.L1phase_chart.Name = "L1phase_chart";
-            series17.ChartArea = "ChartArea1";
-            series17.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
-            series17.Legend = "Legend1";
-            series17.Name = "Series1";
-            this.L1phase_chart.Series.Add(series17);
-            this.L1phase_chart.Size = new System.Drawing.Size(350, 350);
-            this.L1phase_chart.TabIndex = 43;
-            this.L1phase_chart.Text = "L1phase";
-            // 
-            // R1phase_chart
-            // 
-            chartArea18.Name = "ChartArea1";
-            this.R1phase_chart.ChartAreas.Add(chartArea18);
-            legend18.Name = "Legend1";
-            this.R1phase_chart.Legends.Add(legend18);
-            this.R1phase_chart.Location = new System.Drawing.Point(755, 43);
-            this.R1phase_chart.Name = "R1phase_chart";
-            series18.ChartArea = "ChartArea1";
-            series18.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
-            series18.Legend = "Legend1";
-            series18.Name = "Series1";
-            this.R1phase_chart.Series.Add(series18);
-            this.R1phase_chart.Size = new System.Drawing.Size(350, 350);
-            this.R1phase_chart.TabIndex = 44;
-            this.R1phase_chart.Text = "R1phase";
-            // 
-            // L2phase_chart
-            // 
-            chartArea19.Name = "ChartArea1";
-            this.L2phase_chart.ChartAreas.Add(chartArea19);
-            legend19.Name = "Legend1";
-            this.L2phase_chart.Legends.Add(legend19);
-            this.L2phase_chart.Location = new System.Drawing.Point(379, 418);
-            this.L2phase_chart.Name = "L2phase_chart";
-            series19.ChartArea = "ChartArea1";
-            series19.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
-            series19.Legend = "Legend1";
-            series19.Name = "Series1";
-            this.L2phase_chart.Series.Add(series19);
-            this.L2phase_chart.Size = new System.Drawing.Size(350, 350);
-            this.L2phase_chart.TabIndex = 45;
-            this.L2phase_chart.Text = "L2phase";
-            // 
-            // R2phase_chart
-            // 
-            chartArea20.Name = "ChartArea1";
-            this.R2phase_chart.ChartAreas.Add(chartArea20);
-            legend20.Name = "Legend1";
-            this.R2phase_chart.Legends.Add(legend20);
-            this.R2phase_chart.Location = new System.Drawing.Point(755, 418);
-            this.R2phase_chart.Name = "R2phase_chart";
-            series20.ChartArea = "ChartArea1";
-            series20.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
-            series20.Legend = "Legend1";
-            series20.Name = "Series1";
-            this.R2phase_chart.Series.Add(series20);
-            this.R2phase_chart.Size = new System.Drawing.Size(350, 350);
-            this.R2phase_chart.TabIndex = 46;
-            this.R2phase_chart.Text = "R2phase";
             // 
             // START_button
             // 
@@ -539,20 +468,11 @@
             // oscillate_timer_label
             // 
             this.oscillate_timer_label.AutoSize = true;
-            this.oscillate_timer_label.Location = new System.Drawing.Point(30, 515);
+            this.oscillate_timer_label.Location = new System.Drawing.Point(89, 514);
             this.oscillate_timer_label.Name = "oscillate_timer_label";
             this.oscillate_timer_label.Size = new System.Drawing.Size(31, 12);
             this.oscillate_timer_label.TabIndex = 54;
             this.oscillate_timer_label.Text = "TIME";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(363, 25);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(41, 12);
-            this.label8.TabIndex = 55;
-            this.label8.Text = "<位相>";
             // 
             // label9
             // 
@@ -585,14 +505,14 @@
             // 
             this.splitter1.Location = new System.Drawing.Point(0, 0);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 794);
+            this.splitter1.Size = new System.Drawing.Size(3, 801);
             this.splitter1.TabIndex = 59;
             this.splitter1.TabStop = false;
             // 
             // L1_state
             // 
             this.L1_state.AutoSize = true;
-            this.L1_state.Location = new System.Drawing.Point(32, 627);
+            this.L1_state.Location = new System.Drawing.Point(30, 601);
             this.L1_state.Name = "L1_state";
             this.L1_state.Size = new System.Drawing.Size(53, 12);
             this.L1_state.TabIndex = 64;
@@ -601,7 +521,7 @@
             // L2_state
             // 
             this.L2_state.AutoSize = true;
-            this.L2_state.Location = new System.Drawing.Point(32, 696);
+            this.L2_state.Location = new System.Drawing.Point(30, 677);
             this.L2_state.Name = "L2_state";
             this.L2_state.Size = new System.Drawing.Size(53, 12);
             this.L2_state.TabIndex = 65;
@@ -610,7 +530,7 @@
             // R1_state
             // 
             this.R1_state.AutoSize = true;
-            this.R1_state.Location = new System.Drawing.Point(171, 627);
+            this.R1_state.Location = new System.Drawing.Point(166, 601);
             this.R1_state.Name = "R1_state";
             this.R1_state.Size = new System.Drawing.Size(55, 12);
             this.R1_state.TabIndex = 66;
@@ -619,7 +539,7 @@
             // R2_state
             // 
             this.R2_state.AutoSize = true;
-            this.R2_state.Location = new System.Drawing.Point(171, 696);
+            this.R2_state.Location = new System.Drawing.Point(166, 677);
             this.R2_state.Name = "R2_state";
             this.R2_state.Size = new System.Drawing.Size(55, 12);
             this.R2_state.TabIndex = 67;
@@ -827,7 +747,7 @@
             // 
             // omega_FBweight_upload_button
             // 
-            this.omega_FBweight_upload_button.Location = new System.Drawing.Point(70, 393);
+            this.omega_FBweight_upload_button.Location = new System.Drawing.Point(36, 393);
             this.omega_FBweight_upload_button.Name = "omega_FBweight_upload_button";
             this.omega_FBweight_upload_button.Size = new System.Drawing.Size(75, 23);
             this.omega_FBweight_upload_button.TabIndex = 94;
@@ -838,17 +758,126 @@
             // OMEGA_FBW_label
             // 
             this.OMEGA_FBW_label.AutoSize = true;
-            this.OMEGA_FBW_label.Location = new System.Drawing.Point(171, 398);
+            this.OMEGA_FBW_label.Location = new System.Drawing.Point(117, 398);
             this.OMEGA_FBW_label.Name = "OMEGA_FBW_label";
             this.OMEGA_FBW_label.Size = new System.Drawing.Size(106, 12);
             this.OMEGA_FBW_label.TabIndex = 95;
             this.OMEGA_FBW_label.Text = "OMEGA_FBWEIGHT";
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(30, 514);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(49, 12);
+            this.label11.TabIndex = 96;
+            this.label11.Text = "VSTimer";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(136, 514);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(73, 12);
+            this.label13.TabIndex = 97;
+            this.label13.Text = "ArduinoTimer";
+            // 
+            // Arduino_TIMER
+            // 
+            this.Arduino_TIMER.AutoSize = true;
+            this.Arduino_TIMER.Location = new System.Drawing.Point(215, 514);
+            this.Arduino_TIMER.Name = "Arduino_TIMER";
+            this.Arduino_TIMER.Size = new System.Drawing.Size(31, 12);
+            this.Arduino_TIMER.TabIndex = 98;
+            this.Arduino_TIMER.Text = "TIME";
+            // 
+            // ATTITUDE_L1_label
+            // 
+            this.ATTITUDE_L1_label.AutoSize = true;
+            this.ATTITUDE_L1_label.Location = new System.Drawing.Point(30, 615);
+            this.ATTITUDE_L1_label.Name = "ATTITUDE_L1_label";
+            this.ATTITUDE_L1_label.Size = new System.Drawing.Size(69, 12);
+            this.ATTITUDE_L1_label.TabIndex = 99;
+            this.ATTITUDE_L1_label.Text = "ATITUDE L1";
+            // 
+            // ATTITUDE_R1_label
+            // 
+            this.ATTITUDE_R1_label.AutoSize = true;
+            this.ATTITUDE_R1_label.Location = new System.Drawing.Point(166, 615);
+            this.ATTITUDE_R1_label.Name = "ATTITUDE_R1_label";
+            this.ATTITUDE_R1_label.Size = new System.Drawing.Size(78, 12);
+            this.ATTITUDE_R1_label.TabIndex = 100;
+            this.ATTITUDE_R1_label.Text = "ATTITUDE R1";
+            // 
+            // ATTITUDE_L2_label
+            // 
+            this.ATTITUDE_L2_label.AutoSize = true;
+            this.ATTITUDE_L2_label.Location = new System.Drawing.Point(30, 689);
+            this.ATTITUDE_L2_label.Name = "ATTITUDE_L2_label";
+            this.ATTITUDE_L2_label.Size = new System.Drawing.Size(76, 12);
+            this.ATTITUDE_L2_label.TabIndex = 101;
+            this.ATTITUDE_L2_label.Text = "ATTITUDE L2";
+            // 
+            // ATTITUDE_R2_label
+            // 
+            this.ATTITUDE_R2_label.AutoSize = true;
+            this.ATTITUDE_R2_label.Location = new System.Drawing.Point(166, 689);
+            this.ATTITUDE_R2_label.Name = "ATTITUDE_R2_label";
+            this.ATTITUDE_R2_label.Size = new System.Drawing.Size(78, 12);
+            this.ATTITUDE_R2_label.TabIndex = 102;
+            this.ATTITUDE_R2_label.Text = "ATTITUDE R2";
+            // 
+            // phase_chart
+            // 
+            this.phase_chart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            chartArea1.Name = "ChartArea1";
+            this.phase_chart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.phase_chart.Legends.Add(legend1);
+            this.phase_chart.Location = new System.Drawing.Point(356, 184);
+            this.phase_chart.Name = "phase_chart";
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
+            series1.Legend = "Legend1";
+            series1.Name = "phaseL1";
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
+            series2.Legend = "Legend1";
+            series2.Name = "phaseL2";
+            series3.ChartArea = "ChartArea1";
+            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
+            series3.Legend = "Legend1";
+            series3.Name = "phaseR1";
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
+            series4.Legend = "Legend1";
+            series4.Name = "phaseR2";
+            series5.ChartArea = "ChartArea1";
+            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Polar;
+            series5.Legend = "Legend1";
+            series5.Name = "order";
+            this.phase_chart.Series.Add(series1);
+            this.phase_chart.Series.Add(series2);
+            this.phase_chart.Series.Add(series3);
+            this.phase_chart.Series.Add(series4);
+            this.phase_chart.Series.Add(series5);
+            this.phase_chart.Size = new System.Drawing.Size(420, 427);
+            this.phase_chart.TabIndex = 103;
+            this.phase_chart.Text = "chart1";
+            // 
             // POform
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1129, 794);
+            this.ClientSize = new System.Drawing.Size(806, 801);
+            this.Controls.Add(this.phase_chart);
+            this.Controls.Add(this.ATTITUDE_R2_label);
+            this.Controls.Add(this.ATTITUDE_L2_label);
+            this.Controls.Add(this.ATTITUDE_R1_label);
+            this.Controls.Add(this.ATTITUDE_L1_label);
+            this.Controls.Add(this.Arduino_TIMER);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.label11);
             this.Controls.Add(this.OMEGA_FBW_label);
             this.Controls.Add(this.omega_FBweight_upload_button);
             this.Controls.Add(this.label12);
@@ -873,13 +902,8 @@
             this.Controls.Add(this.state_label);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label9);
-            this.Controls.Add(this.label8);
             this.Controls.Add(this.oscillate_timer_label);
             this.Controls.Add(this.START_button);
-            this.Controls.Add(this.R2phase_chart);
-            this.Controls.Add(this.L2phase_chart);
-            this.Controls.Add(this.R1phase_chart);
-            this.Controls.Add(this.L1phase_chart);
             this.Controls.Add(this.Force_sensor_button);
             this.Controls.Add(this.R2_Normal_Force_label);
             this.Controls.Add(this.R1_Normal_Force_label);
@@ -916,12 +940,9 @@
             this.Text = "Phase_Oscillator";
             ((System.ComponentModel.ISupportInitialize)(this.MINPressureUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.MAXPressureUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.L1phase_chart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.R1phase_chart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.L2phase_chart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.R2phase_chart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.omega_numericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.FB_weight_numericUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.phase_chart)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -961,14 +982,9 @@
         private System.Windows.Forms.Label R1_Normal_Force_label;
         private System.Windows.Forms.Label R2_Normal_Force_label;
         private System.Windows.Forms.Button Force_sensor_button;
-        private System.Windows.Forms.DataVisualization.Charting.Chart L1phase_chart;
-        private System.Windows.Forms.DataVisualization.Charting.Chart R1phase_chart;
-        private System.Windows.Forms.DataVisualization.Charting.Chart L2phase_chart;
-        private System.Windows.Forms.DataVisualization.Charting.Chart R2phase_chart;
         private System.Windows.Forms.Button START_button;
         private System.Windows.Forms.Timer oscillator_timer;
         private System.Windows.Forms.Label oscillate_timer_label;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label state_label;
@@ -993,5 +1009,13 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Button omega_FBweight_upload_button;
         private System.Windows.Forms.Label OMEGA_FBW_label;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label Arduino_TIMER;
+        private System.Windows.Forms.Label ATTITUDE_L1_label;
+        private System.Windows.Forms.Label ATTITUDE_R1_label;
+        private System.Windows.Forms.Label ATTITUDE_L2_label;
+        private System.Windows.Forms.Label ATTITUDE_R2_label;
+        private System.Windows.Forms.DataVisualization.Charting.Chart phase_chart;
     }
 }
