@@ -1,4 +1,3 @@
-#include <MsTimer2.h>
 
 //ピン番号設定
 #define DA_SCK 13 //クロック信号出力ピン
@@ -15,7 +14,6 @@
 
 int serial_baudrate=19200;//9600,19200,38400,57600,74880,115200,230400,250000
 
-//unsigned long start;
 float StringToFloat(String s);
 int PotentiometerFlag=0;
 int Normal_Force_Flag=0;
@@ -90,11 +88,8 @@ void Pin_All_OFF(){
     }
 }//Pin_All_OFF end
 
-
-  
 void setup() {
   Serial.begin(serial_baudrate);
-  //start=micros();
   pinMode(DA_SCK, OUTPUT);
   pinMode(DA_SDI, OUTPUT);
   pinMode(DA_CS, OUTPUT);
@@ -105,16 +100,15 @@ void setup() {
   for(PinNum=22;PinNum<54;PinNum++){
    pinMode(PinNum,OUTPUT);
   }
-
   for(PinNum=22;PinNum<54;PinNum++){
    digitalWrite(PinNum,LOW);
   }
+  
 }//setup end
 
           
 void loop() {
     if(Serial.available()>0){//PCからの受信
-      
         SETTING_SWITCH=Serial.readStringUntil(':');
         if(SETTING_SWITCH=="POT ON")PotentiometerFlag=1;
         if(SETTING_SWITCH=="POT OFF")PotentiometerFlag=0;
@@ -163,7 +157,6 @@ void loop() {
           }
         }
     }
-    
     if(PotentiometerFlag==1)Output_Function_Angle();  //ポテンショメータの角度データを出力  
     if(Normal_Force_Flag==1)Output_function_NormalForce();//圧力センサ出力
     if(DRIVE_FLAG==1){
@@ -177,7 +170,6 @@ void loop() {
       else if(loopcounter>0){loopcounter+=1;}
       else {loopcounter=0;}
       nowTIME=TIMER-starttimebox;
-      
     }
     else if(DRIVE_FLAG==0){
       for(int c=0;c<4;c++){
@@ -185,8 +177,6 @@ void loop() {
       }
       TIMER=0.0;
     }
-
-
 }//loop end
 
 //Degrees to Radians
@@ -348,12 +338,6 @@ void Output_Function_PHASE_angle_velocity(){
       }
     }
     
-  /*
-  if(DRIVE_FLAG==1&&loopcounter==0){starttimebox=TIMER;loopcounter++;}
-  else if(DRIVE_FLAG==1&&loopcounter>0){loopcounter++;}
-  else {loopcounter=0;}
-  nowTIME=TIMER-starttimebox;
-  */
   Serial.println("TIMER:"+String(nowTIME));
   Serial.println("AV_L1:"+String(angle_velocity[0]));
   Serial.println("AV_L2:"+String(angle_velocity[1]));
@@ -460,237 +444,3 @@ void Output_function_NormalForce(){
   Serial.flush();
   
 }
-
-
-  /*
-  //シングルスレッド（絶対消すな！）
-  /////////////
-  //パターン１//
-  /////////////
-  dt=(micros()-preTime)/MEGA;
-  preTime=micros();
-  TIMER=TIMER+dt;
-  angle_velocity[0]=omega-sigma*FORCE[0]*cos(PHASE[0]);
-  angle_velocity[1]=omega-sigma*FORCE[1]*cos(PHASE[1]);
-  angle_velocity[2]=omega-sigma*FORCE[2]*cos(PHASE[2]);
-  angle_velocity[3]=omega-sigma*FORCE[3]*cos(PHASE[3]);
-
-  saw[0]+=angle_velocity[0]*dt;
-  saw[1]+=angle_velocity[1]*dt;
-  saw[2]+=angle_velocity[2]*dt;
-  saw[3]+=angle_velocity[3]*dt;
-
-  PHASE[0]=fmod(saw[0],2*PI_VAL);
-  PHASE[1]=fmod(saw[1],2*PI_VAL);
-  PHASE[2]=fmod(saw[2],2*PI_VAL);
-  PHASE[3]=fmod(saw[3],2*PI_VAL);
-
-  PHASEsaw[0]=fmod(PHASE[0],PI_VAL);
-  PHASEsaw[1]=fmod(PHASE[1],PI_VAL);
-  PHASEsaw[2]=fmod(PHASE[2],PI_VAL);
-  PHASEsaw[3]=fmod(PHASE[3],PI_VAL);
-
-
-  DeltaPhase[0]=PHASEsaw[0]-PrePhase[0];
-  DeltaPhase[1]=PHASEsaw[1]-PrePhase[1];
-  DeltaPhase[2]=PHASEsaw[2]-PrePhase[2];
-  DeltaPhase[3]=PHASEsaw[3]-PrePhase[3];
-  
-  if(DeltaPhase[0]<0)timinger[0]=1;
-  else if(DeltaPhase[0]>0)timinger[0]=0;
-  if(DeltaPhase[1]<0)timinger[1]=1;
-  else if(DeltaPhase[1]>0)timinger[1]=0;
-  if(DeltaPhase[2]<0)timinger[2]=1;
-  else if(DeltaPhase[2]>0)timinger[2]=0;
-  if(DeltaPhase[3]<0)timinger[3]=1;
-  else if(DeltaPhase[3]>0)timinger[3]=0;
-  
-  PrePhase[0]=PHASEsaw[0];
-  PrePhase[1]=PHASEsaw[1];
-  PrePhase[2]=PHASEsaw[2];
-  PrePhase[3]=PHASEsaw[3];
-  
-
-  //////////////////Leg1の処理//////////////////
-    
-  if(Pattern[0][ComboBoxValue[0]] != "No"){
-      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-      LegPointInput(ComboBoxValue[0],1,Pattern[0][ComboBoxValue[0]].charAt(0),Pattern[0][ComboBoxValue[0]].charAt(1));
-      if(timinger[0]==1){
-          ComboBoxValue[0] = ComboBoxValue[0] + 1;
-          if( ComboBoxValue[0] == 4 ) ComboBoxValue[0] = 0;
-      }
-   }  
-   else {
-      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-      ComboBoxValue[0] = ComboBoxValue[0] + 1;
-      if( ComboBoxValue[0] == 4 ) ComboBoxValue[0] = 0;
-   }
-   /////////////////////////////////////////////////
-
-   ////////////////////Leg2の処理//////////////////
-    
-   if(Pattern[1][ComboBoxValue[1]] != "No"){
-      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-      LegPointInput(ComboBoxValue[1],2,Pattern[1][ComboBoxValue[1]].charAt(0),Pattern[1][ComboBoxValue[1]].charAt(1));
-      if(timinger[1]==1){
-               ComboBoxValue[1] = ComboBoxValue[1] + 1;
-               if( ComboBoxValue[1] == 4 ) ComboBoxValue[1] = 0;
-      }
-   }  
-   else {
-      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-      ComboBoxValue[1] = ComboBoxValue[1] + 1;
-      if( ComboBoxValue[1] == 4 ) ComboBoxValue[1] = 0;
-   }
-   ///////////////////////////////////////////////////
-        
-   ////////////////////Leg3の処理//////////////////
-    
-       if(Pattern[2][ComboBoxValue[2]] != "No"){
-           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-           LegPointInput(ComboBoxValue[2],3,Pattern[2][ComboBoxValue[2]].charAt(0),Pattern[2][ComboBoxValue[2]].charAt(1));
-           if(timinger[2]==1){
-               ComboBoxValue[2] = ComboBoxValue[2] + 1;
-               if( ComboBoxValue[2] == 4 ) ComboBoxValue[2] = 0;
-           }
-        }  
-        else {
-       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-           ComboBoxValue[2] = ComboBoxValue[2] + 1;
-           if( ComboBoxValue[2] == 4 ) ComboBoxValue[2] = 0;
-        }
-   ///////////////////////////////////////////////////
-
-   ////////////////////Leg4の処理//////////////////
-    
-       if(Pattern[3][ComboBoxValue[3]] != "No"){
-           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-           LegPointInput(ComboBoxValue[3],4,Pattern[3][ComboBoxValue[3]].charAt(0),Pattern[3][ComboBoxValue[3]].charAt(1));
-           if(timinger[3]==1){
-               ComboBoxValue[3] = ComboBoxValue[3] + 1;
-               if( ComboBoxValue[3] == 4 ) ComboBoxValue[3] = 0;
-           }
-        }  
-        else {
-       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-           ComboBoxValue[3] = ComboBoxValue[3] + 1;
-           if( ComboBoxValue[3] == 4 ) ComboBoxValue[3] = 0;
-        }
-   ///////////////////////////////////////////////////
-
-////////////
-//パターン2//
-////////////
-
-angle_velocity_L1=omega-sigma* FORCE_L1* cos(PHASE_L1);
-angle_velocity_L2=omega-sigma* FORCE_L2* cos(PHASE_L2);
-angle_velocity_R1=omega-sigma* FORCE_R1* cos(PHASE_R1);
-angle_velocity_R2=omega-sigma* FORCE_R2* cos(PHASE_R2);
-
-saw_L1+=angle_velocity_L1* dt;
-saw_L2+=angle_velocity_L2* dt;
-saw_R1+=angle_velocity_R1* dt;
-saw_R2+=angle_velocity_R2* dt;
-
-PHASE_L1=fmod(saw_L1,2*PI_VAL);
-PHASE_L2=fmod(saw_L2,2*PI_VAL);
-PHASE_R1=fmod(saw_R1,2*PI_VAL);
-PHASE_R2=fmod(saw_R2,2*PI_VAL);
-
-PHASEsaw_L1=fmod(PHASE_L1, PI_VAL);
-PHASEsaw_L2=fmod(PHASE_L2, PI_VAL);
-PHASEsaw_R1=fmod(PHASE_R1, PI_VAL);
-PHASEsaw_R2=fmod(PHASE_R2, PI_VAL);
-
-
-DeltaPhase_L1=PHASEsaw_L1-PrePhase_L1;
-  DeltaPhase_L2=PHASEsaw_L2-PrePhase_L2;
-  DeltaPhase_R1=PHASEsaw_R1-PrePhase_R1;
-  DeltaPhase_R2=PHASEsaw_R2-PrePhase_R2;
-  
-  if(DeltaPhase_L1<0)timinger_L1=1;
-  else if(DeltaPhase_L1>0)timinger_L1=0;
-  if(DeltaPhase_L2<0)timinger_L2=1;
-  else if(DeltaPhase_L2>0)timinger_L2=0;
-  if(DeltaPhase_R1<0)timinger_R1=1;
-  else if(DeltaPhase_R1>0)timinger_R1=0;
-  if(DeltaPhase_R2<0)timinger_R2=1;
-  else if(DeltaPhase_R2>0)timinger_R2=0;
-  
-  PrePhase_L1=PHASEsaw_L1;
-  PrePhase_L2=PHASEsaw_L2;
-  PrePhase_R1=PHASEsaw_R1;
-  PrePhase_R2=PHASEsaw_R2;
-  
-
-  //////////////////Leg1の処理//////////////////
-    
-  if(Pattern_L1[ComboBoxValue_L1] != "No"){
-      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-      LegPointInput(ComboBoxValue_L1,1, Pattern_L1[ComboBoxValue_L1].charAt(0),Pattern_L1[ComboBoxValue_L1].charAt(1));
-      if(timinger_L1==1){
-          ComboBoxValue_L1 = ComboBoxValue_L1 + 1;
-          if(ComboBoxValue_L1 == 4 ) ComboBoxValue_L1 = 0;
-      }
-   }  
-   else {
-      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-      ComboBoxValue_L1 = ComboBoxValue_L1 + 1;
-      if(ComboBoxValue_L1 == 4 ) ComboBoxValue_L1 = 0;
-   }
-   /////////////////////////////////////////////////
-
-   ////////////////////Leg2の処理//////////////////
-    
-   if(Pattern_L2[ComboBoxValue_L2] != "No"){
-      //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-      LegPointInput(ComboBoxValue_L2,2, Pattern_L2[ComboBoxValue_L2].charAt(0),Pattern_L2[ComboBoxValue_L2].charAt(1));
-      if(timinger_L2==1){
-               ComboBoxValue_L2 = ComboBoxValue_L2 + 1;
-               if(ComboBoxValue_L2 == 4 ) ComboBoxValue_L2 = 0;
-      }
-   }  
-   else {
-      //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-      ComboBoxValue_L2 = ComboBoxValue_L2 + 1;
-      if(ComboBoxValue_L2 == 4 ) ComboBoxValue_L2 = 0;
-   }
-   ///////////////////////////////////////////////////
-        
-   ////////////////////Leg3の処理//////////////////
-    
-       if(Pattern_R1[ComboBoxValue_R1] != "No"){
-           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-           LegPointInput(ComboBoxValue_R1,3, Pattern_R1[ComboBoxValue_R1].charAt(0),Pattern_R1[ComboBoxValue_R1].charAt(1));
-           if(timinger_R1==1){
-               ComboBoxValue_R1 = ComboBoxValue_R1 + 1;
-               if(ComboBoxValue_R1 == 4 ) ComboBoxValue_R1 = 0;
-           }
-        }  
-        else {
-       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-           ComboBoxValue_R1 = ComboBoxValue_R1 + 1;
-           if(ComboBoxValue_R1 == 4 ) ComboBoxValue_R1 = 0;
-        }
-   ///////////////////////////////////////////////////
-
-   ////////////////////Leg4の処理//////////////////
-    
-       if(Pattern_R2[ComboBoxValue_R2] != "No"){
-           //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-           LegPointInput(ComboBoxValue_R2,4, Pattern_R2[ComboBoxValue_R2].charAt(0),Pattern_R2[ComboBoxValue_R2].charAt(1));
-           if(timinger_R2==1){
-               ComboBoxValue_R2 = ComboBoxValue_R2 + 1;
-               if(ComboBoxValue_R2 == 4 ) ComboBoxValue_R2 = 0;
-           }
-        }  
-        else {
-       //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
-           ComboBoxValue_R2 = ComboBoxValue_R2 + 1;
-           if(ComboBoxValue_R2 == 4 ) ComboBoxValue_R2 = 0;
-        }
-   ///////////////////////////////////////////////////
-
-//シングルスレッド終わり
-  */

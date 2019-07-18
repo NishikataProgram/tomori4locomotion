@@ -11,46 +11,35 @@ namespace Phase_oscillator
     {
         StreamWriter sw;
         int SERIAL_BAUDRATE = 19200;
-
-        Double[] Normal_Force_Double = new Double[4];
         int oscillator_flag = 0;
-        static double oscillator_time=0.0000;
-        double PHASE_L1;
-        double PHASE_L2;
-        double PHASE_R1;
-        double PHASE_R2;
-
-        string attitude_L1;
-        string attitude_L2;
-        string attitude_R1;
-        string attitude_R2;
-
         int AT_L1;
         int AT_L2;
         int AT_R1;
         int AT_R2;
-
-
-        //Double angle_velocity_L1;
-        //Double angle_velocity_L2;
-        //Double angle_velocity_R1;
-        //Double angle_velocity_R2;
-
-        Double Arduino_TIME;
-
+        string attitude_L1;
+        string attitude_L2;
+        string attitude_R1;
+        string attitude_R2;
+        double PHASE_L1;
+        double PHASE_L2;
+        double PHASE_R1;
+        double PHASE_R2;
+        double angle_velocity_L1;
+        double angle_velocity_L2;
+        double angle_velocity_R1;
+        double angle_velocity_R2;
         double Arduino_TIME_TO_VS;
-
-        //Double AV_L1;
-        //Double AV_L2;
-        //Double AV_R1;
-        //Double AV_R2;
-
-        //Double test;
-
+        static double oscillator_time = 0.0000;
+        Double Arduino_TIME;
+        Double AV_L1;
+        Double AV_L2;
+        Double AV_R1;
+        Double AV_R2;
         Double PHASE_L1_Value_Double;
         Double PHASE_L2_Value_Double;
         Double PHASE_R1_Value_Double;
         Double PHASE_R2_Value_Double;
+        Double[] Normal_Force_Double = new Double[4];
 
         public POform()
         {
@@ -60,15 +49,14 @@ namespace Phase_oscillator
 
         static private double ToRadians(double degrees)
         {
-            
             return  (Math.PI / 180) * degrees;
         }
 
         static private double ToDegrees(double radians)
         {
-            
             return  (180 / Math.PI) * radians;
         }
+
 
         //////////////////////////////////////////////////////
         //////////////////////////////////////////////////////
@@ -92,8 +80,6 @@ namespace Phase_oscillator
         }
 
 
-
-
         //////////////////////////////////////////////////////
         //////////////////////////////////////////////////////
         //シリアルポートオープンボタンをクリックした時の処理//　　
@@ -114,7 +100,6 @@ namespace Phase_oscillator
                 Serialport_openandclose_button.Text = "OPEN";            
                 oscillator_timer.Enabled = false;
                 state_label.Text = "シリアルポート切断";
-
             }
         }
        
@@ -124,7 +109,6 @@ namespace Phase_oscillator
             serialPort1.BaudRate = SERIAL_BAUDRATE;
             serialPort1.PortName = portname;
             serialPort1.Open();
-            
         }
 
         private void SerialPortCLOSE()
@@ -179,8 +163,6 @@ namespace Phase_oscillator
             Double Potentiometer_R12_Value_Double;
             Double Potentiometer_R21_Value_Double;
             Double Potentiometer_R22_Value_Double;
-
-
             String PostOffice = serialPort1.ReadTo(":");
             String Mail = serialPort1.ReadLine();
 
@@ -311,7 +293,7 @@ namespace Phase_oscillator
                 {
                     PHASE_R2 = PHASE_R2_Value_Double;
                 }
-            }/*
+            }
             else if (PostOffice == "AV_L1")
             {
                 if (Double.TryParse(Mail, out AV_L1))
@@ -339,12 +321,11 @@ namespace Phase_oscillator
                 {
                     angle_velocity_R2 = AV_R2;
                 }
-            }*/
+            }
             else if (PostOffice == "ATTITUDE_L1")
             {
                 ATTITUDE_L1_label.Text = Mail;
                 attitude_L1 = Mail;
-
                 if (attitude_L1 == "NN") AT_L1 = 0;
                 else if (attitude_L1 == "FF") AT_L1 = 1;
                 else if (attitude_L1 == "BB") AT_L1 = 2;
@@ -359,7 +340,6 @@ namespace Phase_oscillator
             {
                 ATTITUDE_L2_label.Text = Mail;
                 attitude_L2 = Mail;
-
                 if (attitude_L2 == "NN") AT_L2 = 0;
                 else if (attitude_L2 == "FF") AT_L2 = 1;
                 else if (attitude_L2 == "BB") AT_L2 = 2;
@@ -388,7 +368,6 @@ namespace Phase_oscillator
             {
                 ATTITUDE_R2_label.Text = Mail;
                 attitude_R2 = Mail;
-
                 if (attitude_R2 == "NN") AT_R2 = 0;
                 else if (attitude_R2 == "FF") AT_R2 = 1;
                 else if (attitude_R2 == "BB") AT_R2 = 2;
@@ -406,22 +385,11 @@ namespace Phase_oscillator
                     Arduino_TIME_TO_VS=Arduino_TIME;
                 }
             }
-            /*else if (PostOffice == "test")//通信テストフラグ
-            {
-                
-                if (Double.TryParse(Mail, out test))
-                {
-                    
-                        Console.WriteLine(test);
-                    
-                }
-            }*/
             else if (PostOffice == "DebugPrint")
             {
                 DebugLabel.Text = Mail;
             }
         }
-
 
 
         //////////////////////////////////////////////////////
@@ -490,7 +458,11 @@ namespace Phase_oscillator
             DebugLabel2.Text = DebugString;
         }
 
-
+        //////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////
+        /////////////FB係数と固有角速度を送る処理/////////////
+        //////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////
         private void Omega_FBweight_upload_button_Click(object sender, EventArgs e)
         {
             String SendDataString_OMEGA_AND_FBW;
@@ -523,20 +495,15 @@ namespace Phase_oscillator
             {
                 serialPort1.Write("Normal_force_ON");
                 Force_sensor_button.Text = "圧力センサ OFF";
-              
 
             }
             else if (Force_sensor_button.Text == "圧力センサ OFF")
             {
                 serialPort1.Write("Normal_force_OFF");
                 Force_sensor_button.Text = "圧力センサ ON";
-              
-
             }
 
         }
-
-
 
 
         //////////////////////////////////////////////////////
@@ -553,7 +520,7 @@ namespace Phase_oscillator
                 state_label.Text = "試験中";
                 oscillator_timer.Enabled = true;
                 sw = new StreamWriter(@"C:\Users\tomor\Desktop\修士研究(西方)\Result_Box\TEST.csv");
-                sw.WriteLine("TIME,Atime,L11,L12,L21,L22,R11,R12,R21,R22,NF_L1,NF_L2,NF_R1,NF_R2,phase_L1,phase_L2,phase_R1,phase_R2,attitude_L1,attitude_L2,attitude_R1,attitude_R2");
+                sw.WriteLine("TIME,Atime,L11,L12,L21,L22,R11,R12,R21,R22,NF_L1,NF_L2,NF_R1,NF_R2,AV_L1,AV_L2,AV_R1,AV_R2,phase_L1,phase_L2,phase_R1,phase_R2,attitude_L1,attitude_L2,attitude_R1,attitude_R2");
                 serialPort1.Write("DRIVE");
             }
             else if (START_button.Text == "STOP")
@@ -567,10 +534,7 @@ namespace Phase_oscillator
                 serialPort1.Write("DRIVE_STOP");
 
             }
-
         }
-
-      
 
 
         //////////////////////////////////////////////////////
@@ -581,26 +545,20 @@ namespace Phase_oscillator
         private void oscillator_timer_Tick(object sender, EventArgs e)
         {
             double oscillate_time = oscillator_time/10 ;//[s]
-
+            double phasecossum = Math.Cos(PHASE_L1) + Math.Cos(PHASE_L2) + Math.Cos(PHASE_R1) + Math.Cos(PHASE_R2);
+            double phasesinsum = Math.Sin(PHASE_L1) + Math.Sin(PHASE_L2) + Math.Sin(PHASE_R1) + Math.Sin(PHASE_R2);
+            double avephasecossum = phasecossum / 4;
+            double avephasesinsum = phasesinsum / 4;
 
             if (oscillator_flag==1)
             {
                
-                    oscillator_time++;
-                    oscillate_timer_label.Text = oscillate_time.ToString();
-                    Arduino_TIMER.Text = Arduino_TIME_TO_VS.ToString();
-
-                 sw.WriteLine(oscillator_time / 10 + "," + Arduino_TIME_TO_VS + "," + PotentiometerL11.Text + "," + PotentiometerL12.Text + "," + PotentiometerL21.Text + "," + PotentiometerL22.Text + "," + PotentiometerR11.Text + "," + PotentiometerR12.Text + "," + PotentiometerR21.Text + "," + PotentiometerR22.Text + "," + L1_Normal_Force_label.Text + "," + L2_Normal_Force_label.Text + "," + R1_Normal_Force_label.Text + "," + R2_Normal_Force_label.Text + "," + PHASE_L1 + "," + PHASE_L2 + "," + PHASE_R1 + "," + PHASE_R2 + "," + AT_L1 + "," + AT_L2 + "," + AT_R1 + "," + AT_R2);
+                oscillator_time++;
+                oscillate_timer_label.Text = oscillate_time.ToString();
+                Arduino_TIMER.Text = Arduino_TIME_TO_VS.ToString();
+                sw.WriteLine(oscillator_time / 10 + "," + Arduino_TIME_TO_VS + "," + PotentiometerL11.Text + "," + PotentiometerL12.Text + "," + PotentiometerL21.Text + "," + PotentiometerL22.Text + "," + PotentiometerR11.Text + "," + PotentiometerR12.Text + "," + PotentiometerR21.Text + "," + PotentiometerR22.Text + "," + L1_Normal_Force_label.Text + "," + L2_Normal_Force_label.Text + "," + R1_Normal_Force_label.Text + "," + R2_Normal_Force_label.Text + "," + angle_velocity_L1 + "," + angle_velocity_L2 + "," + angle_velocity_R1 + "," + angle_velocity_R2 + "," + PHASE_L1 + "," + PHASE_L2 + "," + PHASE_R1 + "," + PHASE_R2 + "," + AT_L1 + "," + AT_L2 + "," + AT_R1 + "," + AT_R2);
 
                 //ここからグラフ描画処理------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-                
-
-                double phasecossum = Math.Cos(PHASE_L1) + Math.Cos(PHASE_L2) + Math.Cos(PHASE_R1) + Math.Cos(PHASE_R2);
-                double phasesinsum = Math.Sin(PHASE_L1) + Math.Sin(PHASE_L2) + Math.Sin(PHASE_R1) + Math.Sin(PHASE_R2);
-                double avephasecossum = phasecossum / 4;
-                double avephasesinsum = phasesinsum / 4;
-
                 phase_chart.Series.Clear();
                 phase_chart.Series.Add("phaseL1");
                 phase_chart.Series.Add("phaseL2");
@@ -637,8 +595,6 @@ namespace Phase_oscillator
                 phase_chart.Series["phaseR1"].MarkerStyle = MarkerStyle.Circle;
                 phase_chart.Series["phaseR2"].MarkerStyle = MarkerStyle.Circle;
                 phase_chart.Series["order"].MarkerStyle = MarkerStyle.Circle;
-
-
                 //ここまでグラフ描画処理------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -646,17 +602,17 @@ namespace Phase_oscillator
                 //コンソール画面への出力------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 /*時間*/
                 Console.Write("time: "); Console.Write(oscillate_time); Console.Write("  ");
-                    /*Arduino時間*/
-                    Console.Write("Arduino_time: "); Console.Write(Arduino_TIME_TO_VS); Console.Write("  ");
-                    /*荷重*/
-                    //Console.Write("n_force: "); Console.Write(Normal_Force_Double[0]); Console.Write("  ");
-                    /*位相*/
-                    Console.Write("phase: "); Console.Write(ToDegrees(PHASE_L1)); Console.Write("  ");
-                    /*姿勢*/
-                    Console.Write("attitude: "); Console.Write(AT_L1); Console.Write("  ");
-                    /*終点*/
-                    Console.WriteLine("");
-                    //コンソール画面への出力ここまで----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                /*Arduino時間*/
+                Console.Write("Arduino_time: "); Console.Write(Arduino_TIME_TO_VS); Console.Write("  ");
+                /*荷重*/
+                //Console.Write("n_force: "); Console.Write(Normal_Force_Double[0]); Console.Write("  ");
+                /*位相*/
+                Console.Write("phase: "); Console.Write(ToDegrees(PHASE_L1)); Console.Write("  ");
+                /*姿勢*/
+                Console.Write("attitude: "); Console.Write(AT_L1); Console.Write("  ");
+                /*終点*/
+                Console.WriteLine("");
+                //コンソール画面への出力ここまで----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 
             }
             else if (oscillator_flag==0)
@@ -680,96 +636,5 @@ namespace Phase_oscillator
 
 }
 
-//arduinoへ移行するプログラム
 
-/*
- 
-   //////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////
-        ///////////////位相の角速度を求める処理///////////////
-        //////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////
-        public static double calculate(double omega, double sigma, double normal_force, double phase)
-        {
-            double diff_phase;
-            return diff_phase = omega - sigma * normal_force * Math.Cos(phase);//[rad]
-        }
-
-
-
-    private double FB_sigma(double natural_omega, double minimam_omega)
-    {
-        double sigma;
-        double weight = ToNewton(8 / 3);
-        double omega_ratio = minimam_omega / natural_omega;
-        sigma = (natural_omega / weight) * Math.Sqrt(1 - Math.Pow(omega_ratio, 2));
-
-        return sigma;
-    }
-
-
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-    /////////////////////////積分/////////////////////////
-    //////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////
-    private static double INTEGRAL(double initial_Integrable_function,double final_Initegrable_function, double initial_time, double final_time,double dt)
-    {
-        double ans=0;
-        for (double count=initial_time; count<final_time;count++)
-        {
-            ans += ((initial_Integrable_function + final_Initegrable_function) * dt / 2);//台形積分による計算
-        }
-        return ans;
-    }
-
-
-                //for (int count = 0; count < 4; count++)//アルゴリズム
-                //{
-
-                
-                    diff_phase[0] = calculate(omega, sigma, Normal_Force_Double[0] * (1 / 2.5), oscillator_phase[0]);//[rad/s]
-                    diff_phase[1] = calculate(omega, sigma, Normal_Force_Double[1] * (1 / 2.5), oscillator_phase[1]);//[rad/s]
-                    diff_phase[2] = calculate(omega, sigma, Normal_Force_Double[2] * (1 / 2.5), oscillator_phase[2]);//[rad/s]
-                    diff_phase[3] = calculate(omega, sigma, Normal_Force_Double[3] * (1 / 2.5), oscillator_phase[3]);//[rad/s]
-
-                    oscillator_phase[0] = saw_function_converter(INTEGRAL(diff_phase[0], diff_phase_old[0], 0, oscillator_time, 0.1));//[rad]
-                    oscillator_phase[1] = saw_function_converter(INTEGRAL(diff_phase[1], diff_phase_old[1], 0, oscillator_time, 0.1));//[rad]
-                    oscillator_phase[2] = saw_function_converter(INTEGRAL(diff_phase[2], diff_phase_old[2], 0, oscillator_time, 0.1));//[rad]
-                    oscillator_phase[3] = saw_function_converter(INTEGRAL(diff_phase[3], diff_phase_old[3], 0, oscillator_time, 0.1));//[rad]
-
-                    diff_phase_old[0] = diff_phase[0];                    
-                    diff_phase_old[1] = diff_phase[1];                
-                    diff_phase_old[2] = diff_phase[2];
-                    diff_phase_old[3] = diff_phase[3];
-
-               
-                for(int count=0;count<4;count++){
-                diff_phase[count] = omega - sigma * Normal_Force_Double[count] * (1 / 2.5) * Math.Cos(oscillator_phase[count]);
-                }
-                for(int count=0;count<4;count++){
-                oscillator_phase[count] =INTEGRAL(diff_phase[count],diff_phase_old[count],0,oscillator_time,0.1)% (2 * Math.PI);
-                }
-                for(int count=0;count<4;count++){
-                 diff_phase_old[count] = diff_phase[count];
-                }
-                
-                
-                
-
-                //}
-
-
-                attitude[0] = flont_feet_attitude(central_point_FF, central_point_NN, phase_pattern_range, oscillator_phase[0]);
-                attitude[1] = back_feet_attitude(central_point_RR, central_point_NN, phase_pattern_range, oscillator_phase[1]);
-                attitude[2] = flont_feet_attitude(central_point_FF, central_point_NN, phase_pattern_range, oscillator_phase[2]);
-                attitude[3] = back_feet_attitude(central_point_RR, central_point_NN, phase_pattern_range, oscillator_phase[3]);
-
-                for (int subcount=0;subcount<4;subcount++)
-                { 
-                    attitude_string[subcount] = attitude[subcount].ToString();
-                    serialPort1.Write(attitude_string[subcount]);
-                    
-                }
-                */
 
