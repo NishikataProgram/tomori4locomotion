@@ -250,10 +250,14 @@ void ITV_function(){
   valve_serial = Serial.readStringUntil(':');
   valve_pressure = valve_serial.toFloat();
   digit_valve = valve_pressure / 0.9 * 4095;
-  if(valve_direction=="MAXP")
-  VOUT = 0;
-  else if(valve_direction=="minP")
-  VOUT = 1;
+  if(valve_direction=="MAXP"){
+    VOUT = 0;
+    Serial.println("MAXP:"+(String)valve_pressure);
+  }
+  else if(valve_direction=="minP"){
+    VOUT = 1;
+    Serial.println("minP:"+(String)valve_pressure);
+  }
   valve_flag = 1;
    
   if(valve_flag == 1)
@@ -298,11 +302,10 @@ float StringToFloat(String s)
 //位相の角速度と位相を出力する関数
 void Output_Function_PHASE_angle_velocity(){
 
-  //unsigned long preTime;
-  //unsigned long dt;
   double saw[4];
-  static int ComboBoxValue[4]={0,1,2,3};
-  //unsigned long nowTIME;
+  static int ComboBoxValue[4]={0,0,0,0};
+  //int phaseloopcounter[4]={0,0,0,0};
+  //double phaseinitializer[4]={0,0,0,0};
 
   
   //静的変数の初期化処理
@@ -314,27 +317,34 @@ void Output_Function_PHASE_angle_velocity(){
   }
   
     for(int count=0;count<4;count++){
-      angle_velocity[count]=omega-sigma*FORCE[count]*cos(PHASE[count]);
-      saw[count]+=angle_velocity[count]*dt;
-      PHASE[count]=fmod(saw[count],2*PI_VAL);
-      PHASEsaw[count]=fmod(PHASE[count],PI_VAL);
-      DeltaPhase[count]=PHASEsaw[count]-PrePhase[count];
-      if(DeltaPhase[count]<0)timinger[count]=1;
-      else if(DeltaPhase[count]>0)timinger[count]=0;
+      angle_velocity[count]=omega-sigma*FORCE[count]*cos(PHASE[count]); //角速度の計算
+      saw[count]+=angle_velocity[count]*dt;                             //角速度を時間積分して位相
+      PHASE[count]=fmod(saw[count],2*PI_VAL);                           //位相を360度ごとに分割
+      PHASEsaw[count]=fmod(PHASE[count],PI_VAL);                        //位相を180度ごとに分割
+      DeltaPhase[count]=PHASEsaw[count]-PrePhase[count];                //180度と360度をまたぐときに負の数を発生させる
+      if(DeltaPhase[count]<0)timinger[count]=1;                         //負の数が発生した時のフラグ
+      else if(DeltaPhase[count]>0)timinger[count]=0;                    //位相が増加中は何も起こらない
       PrePhase[count]=PHASEsaw[count];
+      /*
+      if(phaseloopcounter[count]==0){
+        phaseinitializer[count]=PHASE[count];
+        phaseloopcounter[count]++;
+      }
+      else if(phaseloopcounter[count]>0){
+        phaseloopcounter[count]++;
+      }
+      */
   
-      if(Pattern[count][ComboBoxValue[count]] != "No"){
-        //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
-        LegPointInput(ComboBoxValue[count],1,Pattern[count][ComboBoxValue[count]].charAt(0),Pattern[count][ComboBoxValue[count]].charAt(1));
-        if(timinger[count]==1){
-            ComboBoxValue[count] = ComboBoxValue[count] + 1;
+      if(Pattern[count][ComboBoxValue[count]] != "No"){                 //ComboBox内の値がNoneでなかった場合DelayTimeだけ以下の処理を行う
+        LegPointInput(ComboBoxValue[count],count,Pattern[count][ComboBoxValue[count]].charAt(0),Pattern[count][ComboBoxValue[count]].charAt(1));
+        if(timinger[count]==1){                                         //負の数が発生した時に起こる処理
+            ComboBoxValue[count] = ComboBoxValue[count] + 1;            
             if( ComboBoxValue[count] == 4 ) ComboBoxValue[count] = 0;
         }
       }  
-      else {
-        //ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
+      else {//ComboBoxの値がNoneだった場合次のComboBoxの処理に移る
         ComboBoxValue[count] = ComboBoxValue[count] + 1;
-        if( ComboBoxValue[count] == 10 ) ComboBoxValue[count] = 0;
+        if( ComboBoxValue[count] == 4 ) ComboBoxValue[count] = 0;
       }
     }
     
@@ -351,7 +361,6 @@ void Output_Function_PHASE_angle_velocity(){
   Serial.println("ATTITUDE_L2:"+Pattern[1][ComboBoxValue[1]]);
   Serial.println("ATTITUDE_R1:"+Pattern[2][ComboBoxValue[2]]);
   Serial.println("ATTITUDE_R2:"+Pattern[3][ComboBoxValue[3]]);
-  Serial.println("dt:"+String(dt));
 }
 
 

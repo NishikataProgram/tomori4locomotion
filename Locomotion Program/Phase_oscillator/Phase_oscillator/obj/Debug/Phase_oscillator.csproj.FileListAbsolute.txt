@@ -73,3 +73,12 @@ C:\Users\tomor\Desktop\修士研究(西方)\プログラム\よんそくほこ�
 C:\Users\tomor\Desktop\修士研究(西方)\プログラム\よんそくほこうversion.3\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.csproj.CoreCompileInputs.cache
 C:\Users\tomor\Desktop\修士研究(西方)\プログラム\よんそくほこうversion.3\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.exe
 C:\Users\tomor\Desktop\修士研究(西方)\プログラム\よんそくほこうversion.3\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.pdb
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\bin\Debug\Phase_oscillator.exe.config
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\bin\Debug\Phase_oscillator.exe
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\bin\Debug\Phase_oscillator.pdb
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.csprojAssemblyReference.cache
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.POform.resources
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.csproj.GenerateResource.cache
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.csproj.CoreCompileInputs.cache
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.exe
+C:\Users\tomor\Desktop\修士研究(西方)\プログラム\四足歩行\version.3.0\Phase_oscillator\Phase_oscillator\obj\Debug\Phase_oscillator.pdb

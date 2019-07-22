@@ -16,10 +16,6 @@ namespace Phase_oscillator
         int AT_L2;
         int AT_R1;
         int AT_R2;
-        string attitude_L1;
-        string attitude_L2;
-        string attitude_R1;
-        string attitude_R2;
         double PHASE_L1;
         double PHASE_L2;
         double PHASE_R1;
@@ -96,6 +92,8 @@ namespace Phase_oscillator
             }
             else
             {
+                oscillator_flag = 0;
+                
                 SerialPortCLOSE();
                 Serialport_openandclose_button.Text = "OPEN";            
                 oscillator_timer.Enabled = false;
@@ -325,58 +323,18 @@ namespace Phase_oscillator
             else if (PostOffice == "ATTITUDE_L1")
             {
                 ATTITUDE_L1_label.Text = Mail;
-                attitude_L1 = Mail;
-                if (attitude_L1 == "NN") AT_L1 = 0;
-                else if (attitude_L1 == "FF") AT_L1 = 1;
-                else if (attitude_L1 == "BB") AT_L1 = 2;
-                else if (attitude_L1 == "NF") AT_L1 = 3;
-                else if (attitude_L1 == "NB") AT_L1 = 4;
-                else if (attitude_L1 == "FN") AT_L1 = 5;
-                else if (attitude_L1 == "FB") AT_L1 = 6;
-                else if (attitude_L1 == "BF") AT_L1 = 7;
-                else if (attitude_L1 == "BN") AT_L1 = 8;
             }
             else if (PostOffice == "ATTITUDE_L2")
             {
                 ATTITUDE_L2_label.Text = Mail;
-                attitude_L2 = Mail;
-                if (attitude_L2 == "NN") AT_L2 = 0;
-                else if (attitude_L2 == "FF") AT_L2 = 1;
-                else if (attitude_L2 == "BB") AT_L2 = 2;
-                else if (attitude_L2 == "NF") AT_L2 = 3;
-                else if (attitude_L2 == "NB") AT_L2 = 4;
-                else if (attitude_L2 == "FN") AT_L2 = 5;
-                else if (attitude_L2 == "FB") AT_L2 = 6;
-                else if (attitude_L2 == "BF") AT_L2 = 7;
-                else if (attitude_L2 == "BN") AT_L2 = 8;
             }
             else if (PostOffice == "ATTITUDE_R1")
             {
                 ATTITUDE_R1_label.Text = Mail;
-                attitude_R1 = Mail;
-                if (attitude_R1 == "NN") AT_R1 = 0;
-                else if (attitude_R1 == "FF") AT_R1 = 1;
-                else if (attitude_R1 == "BB") AT_R1 = 2;
-                else if (attitude_R1 == "NF") AT_R1 = 3;
-                else if (attitude_R1 == "NB") AT_R1 = 4;
-                else if (attitude_R1 == "FN") AT_R1 = 5;
-                else if (attitude_R1 == "FB") AT_R1 = 6;
-                else if (attitude_R1 == "BF") AT_R1 = 7;
-                else if (attitude_R1 == "BN") AT_R1 = 8;
             }
             else if (PostOffice == "ATTITUDE_R2")
             {
                 ATTITUDE_R2_label.Text = Mail;
-                attitude_R2 = Mail;
-                if (attitude_R2 == "NN") AT_R2 = 0;
-                else if (attitude_R2 == "FF") AT_R2 = 1;
-                else if (attitude_R2 == "BB") AT_R2 = 2;
-                else if (attitude_R2 == "NF") AT_R2 = 3;
-                else if (attitude_R2 == "NB") AT_R2 = 4;
-                else if (attitude_R2 == "FN") AT_R2 = 5;
-                else if (attitude_R2 == "FB") AT_R2 = 6;
-                else if (attitude_R2 == "BF") AT_R2 = 7;
-                else if (attitude_R2 == "BN") AT_R2 = 8;
             }
             else if (PostOffice == "TIMER")
             {
@@ -399,8 +357,12 @@ namespace Phase_oscillator
         //////////////////////////////////////////////////////
         private void MAX_pressure_input_click(object sender, EventArgs e)
         {
-            string DataSender_Max_pressure = MAXPressureUpDown.Value.ToString();
-            serialPort1.Write("ITV:MAXP:"+DataSender_Max_pressure+":");
+            String MAXPDebugString;
+            String DataSender_Max_pressure;
+            DataSender_Max_pressure = MAXPressureUpDown.Value.ToString();
+            serialPort1.Write("ITV:MAXP:" + DataSender_Max_pressure + ":");
+            MAXPDebugString = DataSender_Max_pressure + "\n";
+          
         }
 
 
@@ -411,8 +373,11 @@ namespace Phase_oscillator
         //////////////////////////////////////////////////////
         private void MIN_pressure_input_click(object sender, EventArgs e)
         {
-            string DataSender_Min_pressure = MAXPressureUpDown.Value.ToString();
+            String minPDebugString;
+            String DataSender_Min_pressure;
+            DataSender_Min_pressure = MINPressureUpDown.Value.ToString();
             serialPort1.Write("ITV:minP:" + DataSender_Min_pressure + ":");
+            minPDebugString = DataSender_Min_pressure + "\n";
         }
 
 
@@ -522,6 +487,7 @@ namespace Phase_oscillator
                 sw = new StreamWriter(@"C:\Users\tomor\Desktop\修士研究(西方)\Result_Box\TEST.csv");
                 sw.WriteLine("TIME,Atime,L11,L12,L21,L22,R11,R12,R21,R22,NF_L1,NF_L2,NF_R1,NF_R2,AV_L1,AV_L2,AV_R1,AV_R2,phase_L1,phase_L2,phase_R1,phase_R2,attitude_L1,attitude_L2,attitude_R1,attitude_R2");
                 serialPort1.Write("DRIVE");
+                
             }
             else if (START_button.Text == "STOP")
             {
@@ -556,7 +522,10 @@ namespace Phase_oscillator
                 oscillator_time++;
                 oscillate_timer_label.Text = oscillate_time.ToString();
                 Arduino_TIMER.Text = Arduino_TIME_TO_VS.ToString();
-                sw.WriteLine(oscillator_time / 10 + "," + Arduino_TIME_TO_VS + "," + PotentiometerL11.Text + "," + PotentiometerL12.Text + "," + PotentiometerL21.Text + "," + PotentiometerL22.Text + "," + PotentiometerR11.Text + "," + PotentiometerR12.Text + "," + PotentiometerR21.Text + "," + PotentiometerR22.Text + "," + L1_Normal_Force_label.Text + "," + L2_Normal_Force_label.Text + "," + R1_Normal_Force_label.Text + "," + R2_Normal_Force_label.Text + "," + angle_velocity_L1 + "," + angle_velocity_L2 + "," + angle_velocity_R1 + "," + angle_velocity_R2 + "," + PHASE_L1 + "," + PHASE_L2 + "," + PHASE_R1 + "," + PHASE_R2 + "," + AT_L1 + "," + AT_L2 + "," + AT_R1 + "," + AT_R2);
+                sw.WriteLine(oscillator_time / 10 + "," + Arduino_TIME_TO_VS + "," + PotentiometerL11.Text + "," + PotentiometerL12.Text + "," + PotentiometerL21.Text + "," + PotentiometerL22.Text + "," + PotentiometerR11.Text + "," + PotentiometerR12.Text + "," + PotentiometerR21.Text + "," + PotentiometerR22.Text + "," + L1_Normal_Force_label.Text + "," + L2_Normal_Force_label.Text + "," + R1_Normal_Force_label.Text + "," + R2_Normal_Force_label.Text + "," + angle_velocity_L1 + "," + angle_velocity_L2 + "," + angle_velocity_R1 + "," + angle_velocity_R2 + "," + PHASE_L1 + "," + PHASE_L2 + "," + PHASE_R1 + "," + PHASE_R2 + "," + ATTITUDE_L1_label.Text.Replace("\r","") + "," + ATTITUDE_L2_label.Text.Replace("\r", "") + "," + ATTITUDE_R1_label.Text.Replace("\r", "") + "," + ATTITUDE_R2_label.Text.Replace("\r", ""));
+               
+
+
 
                 //ここからグラフ描画処理------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 phase_chart.Series.Clear();
@@ -609,7 +578,7 @@ namespace Phase_oscillator
                 /*位相*/
                 Console.Write("phase: "); Console.Write(ToDegrees(PHASE_L1)); Console.Write("  ");
                 /*姿勢*/
-                Console.Write("attitude: "); Console.Write(AT_L1); Console.Write("  ");
+                Console.Write("attitude: "); Console.Write(ATTITUDE_L1_label.Text); Console.Write("  ");
                 /*終点*/
                 Console.WriteLine("");
                 //コンソール画面への出力ここまで----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -630,6 +599,8 @@ namespace Phase_oscillator
                 serialPort1.Close();
             }
         }
+
+        
 
      
     }
